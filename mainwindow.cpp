@@ -15,6 +15,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "lv2_classes.hpp"
+
 #include <QDebug>
 #include <QMessageBox>
 #include <QFileDialog>

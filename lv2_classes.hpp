@@ -1,6 +1,6 @@
 /*
  *
- * LV2_Classes.cpp
+ * LV2_Classes.h
  *
  *     Written by Philippe Groarke - February 2015
  *
@@ -11,9 +11,30 @@
  *     warranty * of merchantability or fitness for a particular
  *     purpose.
  *
+ * Function:
+ *
+ *
  */
+#ifndef LV2_CLASSES_H
+#define LV2_CLASSES_H
 
-#include "LV2_Classes.h"
+#include <lilv/lilv.h>
+
+class LV2_Classes
+{
+public:
+    LV2_Classes(LilvWorld* world);
+    ~LV2_Classes();
+
+    LilvNode* input_class;
+    LilvNode* output_class;
+    LilvNode* control_class;
+    LilvNode* audio_class;
+    LilvNode* event_class;
+    LilvNode* midi_class;
+    LilvNode* optional;
+};
+
 
 LV2_Classes::LV2_Classes(LilvWorld* world)
 {
@@ -37,3 +58,5 @@ LV2_Classes::~LV2_Classes()
     lilv_node_free(optional);
 }
 
+
+#endif // LV2_CLASSES_H

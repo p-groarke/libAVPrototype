@@ -29,12 +29,11 @@ DEPENDPATH += /opt/local/lib/ \
 SOURCES += main.cpp\
         mainwindow.cpp \
     uridmap.cpp \
-    LV2_Classes.cpp \
     audioplayer.cpp
 
 HEADERS  += mainwindow.h \
-    LV2_Classes.h \
-    audioplayer.h
+    audioplayer.h \
+    lv2_classes.hpp
 
 FORMS    += mainwindow.ui
 

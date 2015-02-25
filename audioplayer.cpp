@@ -158,50 +158,58 @@ void AudioPlayer::setupResampler()
 
 void AudioPlayer::readAudioFile()
 {
+    // Start at file beginning.
+    avformat_seek_file(audio_context, 0, 0, 0, 0, 0);
+
+    uint8_t *output;
+    int out_linesize;
+    int out_samples;
     int64_t out_sample_fmt;
     av_opt_get_int(resample_context, "out_sample_fmt", 0, &out_sample_fmt);
 
+    AVPacket pkt = { 0 };
+    av_init_packet(&pkt);
+    AVFrame* frm = av_frame_alloc();
+
     while (readingFile) {
-        AVPacket pkt = { 0 };
-        av_init_packet(&pkt);
         int gotFrame = 0;
-        AVFrame* frm = av_frame_alloc();
 
         readingFile = !av_read_frame(audio_context, &pkt);
         int len = avcodec_decode_audio4(codec_context, frm, &gotFrame,
                 &pkt);
 
         if (gotFrame) {
-            uint8_t *output;
-            int out_linesize;
-            int out_samples;
-
             out_samples = avresample_get_out_samples(resample_context, frm->nb_samples);
             av_samples_alloc(&output, &out_linesize, outputFormat.channels,
                              out_samples, (AVSampleFormat)out_sample_fmt, 0);
             out_samples = avresample_convert(resample_context, &output,
-                    out_linesize, out_samples, frm->extended_data, frm->linesize[0], frm->nb_samples);
+                    out_linesize, out_samples, frm->extended_data,
+                    frm->linesize[0], frm->nb_samples);
 
             int ret = avresample_available(resample_context);
             if (ret)
                 fprintf(stderr, "%d converted samples left over\n", ret);
-
-            int out_delay = avresample_get_delay(resample_context);
-            if (out_delay) {
-                fprintf(stderr, "%d samples delayed and missed\n", out_delay);
-                avresample_convert(resample_context, NULL, 0,
-                        out_delay, NULL, 0, 0);
-            }
-
 
 //            printf("Finished reading Frame len : %d , nb_samples:%d buffer_size:%d line size: %d \n",
 //                   len,frm->nb_samples,pkt.size,
 //                   frm->linesize[0]);
             ao_play(outputDevice, (char*)output, out_samples*4);
         }
-        av_frame_free(&frm);
-        av_free_packet(&pkt);
+        free(output);
     }
+
+    int out_delay = avresample_get_delay(resample_context);
+    while (out_delay) {
+        fprintf(stderr, "Flushed %d delayed resampler samples.\n", out_delay);
+        out_samples = avresample_get_out_samples(resample_context, out_delay);
+        av_samples_alloc(&output, &out_linesize, outputFormat.channels,
+                         out_delay, (AVSampleFormat)out_sample_fmt, 0);
+        out_delay = avresample_convert(resample_context, &output, out_linesize,
+                out_delay, NULL, 0, 0);
+        free(output);
+    }
+    av_frame_free(&frm);
+    av_free_packet(&pkt);
 
     qDebug() << "Thread stopping.";
 }

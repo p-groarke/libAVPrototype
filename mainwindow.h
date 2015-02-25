@@ -25,7 +25,6 @@
 #include "lv2/lv2plug.in/ns/ext/urid/urid.h"
 #include <lilv/lilv.h>
 
-#include "LV2_Classes.h"
 #include "audioplayer.h"
 
 const double sample_rate = 44100.0;

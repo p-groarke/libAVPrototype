@@ -50,11 +50,6 @@ public:
 private:
     void setupResampler();
     void readAudioFile();
-    int init_converted_samples(uint8_t ***converted_input_samples,
-            int frame_size);
-    int convert_samples(uint8_t **input_data,
-            uint8_t **converted_data, const int inframe_size,
-            const int outframe_size);
 
     AVFormatContext* audio_context = NULL;
     AVCodecContext* codec_context = NULL;
