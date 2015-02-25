@@ -1,3 +1,18 @@
+/*
+ *
+ * LV2_Classes.cpp
+ *
+ *     Written by Philippe Groarke - February 2015
+ *
+ * Legal Terms:
+ *
+ *     This source file is released into the public domain.  It is
+ *     distributed without any warranty; without even the implied
+ *     warranty * of merchantability or fitness for a particular
+ *     purpose.
+ *
+ */
+
 #include "LV2_Classes.h"
 
 LV2_Classes::LV2_Classes(LilvWorld* world)

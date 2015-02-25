@@ -1,3 +1,17 @@
+/*
+ *
+ * mainwindow.cpp
+ *
+ *     Written by Philippe Groarke - February 2015
+ *
+ * Legal Terms:
+ *
+ *     This source file is released into the public domain.  It is
+ *     distributed without any warranty; without even the implied
+ *     warranty * of merchantability or fitness for a particular
+ *     purpose.
+ *
+ */
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
@@ -104,7 +118,8 @@ void MainWindow::on_actionOpen_triggered()
     QString fileName = QFileDialog::getOpenFileName(this,
         tr("Open File"),
         getenv("HOME"),
-        tr("Wave File (*.wav)"));
+//        tr("Wave File (*.wav)"));
+        tr("All (*.*)"));
 
     if (!fileName.isEmpty()) {
         ui->filename->setText(QFileInfo(fileName).fileName());

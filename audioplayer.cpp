@@ -1,3 +1,17 @@
+/*
+ *
+ * audioplayer.cpp
+ *
+ *     Written by Philippe Groarke - February 2015
+ *
+ * Legal Terms:
+ *
+ *     This source file is released into the public domain.  It is
+ *     distributed without any warranty; without even the implied
+ *     warranty * of merchantability or fitness for a particular
+ *     purpose.
+ *
+ */
 #include "audioplayer.h"
 
 AudioPlayer::AudioPlayer() :
@@ -144,7 +158,9 @@ void AudioPlayer::setupResampler()
 
 void AudioPlayer::readAudioFile()
 {
-    bool toggle = false;
+    int64_t out_sample_fmt;
+    av_opt_get_int(resample_context, "out_sample_fmt", 0, &out_sample_fmt);
+
     while (readingFile) {
         AVPacket pkt = { 0 };
         av_init_packet(&pkt);
@@ -155,78 +171,37 @@ void AudioPlayer::readAudioFile()
         int len = avcodec_decode_audio4(codec_context, frm, &gotFrame,
                 &pkt);
 
-        uint8_t **converted_samples;
-//        int newNbSampes = ((float)outputFormat.rate / codec_context->sample_rate) *
-//                frm->nb_samples;
-
-        int out_samples = avresample_get_out_samples(resample_context, frm->nb_samples);
-        // Little hack because
-//        toggle = !toggle;
-//        if (toggle) {
-//            newNbSampes += 1;
-//        }
-
-        init_converted_samples(&converted_samples, out_samples);
-        convert_samples(frm->extended_data, converted_samples, frm->nb_samples,
-                out_samples);
-
-        len = sizeof(converted_samples);
-
         if (gotFrame) {
+            uint8_t *output;
+            int out_linesize;
+            int out_samples;
+
+            out_samples = avresample_get_out_samples(resample_context, frm->nb_samples);
+            av_samples_alloc(&output, &out_linesize, outputFormat.channels,
+                             out_samples, (AVSampleFormat)out_sample_fmt, 0);
+            out_samples = avresample_convert(resample_context, &output,
+                    out_linesize, out_samples, frm->extended_data, frm->linesize[0], frm->nb_samples);
+
+            int ret = avresample_available(resample_context);
+            if (ret)
+                fprintf(stderr, "%d converted samples left over\n", ret);
+
+            int out_delay = avresample_get_delay(resample_context);
+            if (out_delay) {
+                fprintf(stderr, "%d samples delayed and missed\n", out_delay);
+                avresample_convert(resample_context, NULL, 0,
+                        out_delay, NULL, 0, 0);
+            }
+
+
 //            printf("Finished reading Frame len : %d , nb_samples:%d buffer_size:%d line size: %d \n",
 //                   len,frm->nb_samples,pkt.size,
 //                   frm->linesize[0]);
-            ao_play(outputDevice, (char*)*converted_samples,
-                    len);
+            ao_play(outputDevice, (char*)output, out_samples*4);
         }
         av_frame_free(&frm);
         av_free_packet(&pkt);
     }
 
     qDebug() << "Thread stopping.";
-}
-
-// Blatantly copied from
-// https://libav.org/doxygen/master/transcode_aac_8c-example.html
-// because it does exactly what we need.
-int AudioPlayer::init_converted_samples(uint8_t ***converted_input_samples,
-                                  int frame_size)
-{
-    int error;
-    if (!(*converted_input_samples = (uint8_t**)calloc(codec_context->channels,
-                                            sizeof(**converted_input_samples)))) {
-        fprintf(stderr, "Could not allocate converted input sample pointers\n");
-        return AVERROR(ENOMEM);
-    }
-    if ((error = av_samples_alloc(*converted_input_samples, NULL,
-                                  codec_context->channels,
-                                  frame_size,
-                                  codec_context->sample_fmt, 0)) < 0) {
-        fprintf(stderr,
-                "Could not allocate converted input samples (error '%x')\n",
-                error*-1);
-        av_freep(&(*converted_input_samples)[0]);
-        free(*converted_input_samples);
-        return error;
-    }
-    return 0;
-}
-
-int AudioPlayer::convert_samples(uint8_t **input_data,
-                           uint8_t **converted_data, const int inframe_size,
-                           const int outframe_size)
-{
-    int error;
-    if ((error = avresample_convert(resample_context, converted_data, 0,
-                                    outframe_size, input_data, 0, inframe_size)) < 0) {
-        fprintf(stderr, "Could not convert input samples (error '%x')\n",
-                error*-1);
-        return error;
-    }
-    int ret;
-    if ((ret = avresample_available(resample_context))) {
-        fprintf(stderr, "%d converted samples left over\n", ret);
-        return AVERROR_EXIT;
-    }
-    return 0;
 }
