@@ -1,14 +1,8 @@
 #ifndef AUDIOPLAYER_H
 #define AUDIOPLAYER_H
 
-#include <QMediaPlayer>
-#include <QAudioProbe>
-#include <QAudioBuffer>
-#include <QAudioOutput>
-#include <QAudioDecoder>
-#include <QIODevice>
-#include <QPointer>
-#include <QFile>
+#include <QObject>
+#include <QDebug>
 
 #include <atomic>
 #include <chrono>
@@ -18,7 +12,10 @@
 #include <ao/ao.h>
 
 extern "C" {
+#include <libavresample/avresample.h>
+#include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
+#include <libavutil/opt.h>
 #include <libavutil/mathematics.h>
 }
 
@@ -34,17 +31,20 @@ public:
     void stop();
 
 private:
+    void setupResampler();
     void readAudioFile();
-
-    QFile* audioFile;
+    int init_converted_samples(uint8_t ***converted_input_samples,
+            int frame_size);
+    int convert_samples(uint8_t **input_data,
+            uint8_t **converted_data, const int inframe_size,
+            const int outframe_size);
 
     AVFormatContext* audio_context = NULL;
-
-    ao_device* outputDevice;
-//    QAudioOutput* mainOut;
-//    QAudioDecoder* decoder;
-//    QMediaPlayer* player;
-//    const QIODevice* stream;
+    AVCodecContext* codec_context = NULL;
+    AVCodec* codec = NULL;
+    AVAudioResampleContext* resample_context = NULL;
+    ao_device* outputDevice = NULL;
+    ao_sample_format outputFormat;
 
     std::atomic<bool> readingFile;
     std::thread fileRead;

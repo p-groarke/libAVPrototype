@@ -122,8 +122,3 @@ void MainWindow::on_stop_clicked()
 {
     mainOut.stop();
 }
-
-void MainWindow::buf_callback(const QAudioBuffer &b)
-{
-    qDebug() << "buffer callback";
-}

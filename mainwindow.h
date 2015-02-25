@@ -34,7 +34,6 @@ private slots:
     void on_actionOpen_triggered();
     void on_play_clicked();
     void on_stop_clicked();
-    void buf_callback(const QAudioBuffer& b);
 
 private:
     Ui::MainWindow *ui;
