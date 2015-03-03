@@ -22,17 +22,17 @@
 #include <string>
 #include <vector>
 
-#include "lv2/lv2plug.in/ns/ext/urid/urid.h"
 #include <lilv/lilv.h>
 
 #include "audioplayer.h"
+#include "globals.h"
 
-const double sample_rate = 44100.0;
-const int buf_size = 512;
 
 namespace Ui {
 class MainWindow;
 }
+
+class LVPlugin;
 
 class MainWindow : public QMainWindow
 {
@@ -41,9 +41,6 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-
-    void printRequiredFeatures(const LilvPlugin* plug);
-    void messageUser(QString s);
 
 private slots:
     void on_plugins_activated(int index);
@@ -55,11 +52,7 @@ private:
     Ui::MainWindow *ui;
     LilvWorld* world;
     const LilvPlugins* plugins;
-    std::vector<LilvInstance*> activePlugins;
-
-    float send[buf_size];
-    float recv[buf_size];
-
+    std::unique_ptr<LVPlugin> currentPlugin;
     AudioPlayer mainOut;
 };
 

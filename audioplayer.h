@@ -15,8 +15,7 @@
  *
  *
  */
-#ifndef AUDIOPLAYER_H
-#define AUDIOPLAYER_H
+#pragma once
 
 #include <QObject>
 #include <QDebug>
@@ -27,6 +26,8 @@
 #include <thread>
 
 #include <ao/ao.h>
+
+#include "globals.h"
 
 extern "C" {
 #include <libavresample/avresample.h>
@@ -51,15 +52,13 @@ private:
     void setupResampler();
     void readAudioFile();
 
-    AVFormatContext* audio_context = NULL;
-    AVCodecContext* codec_context = NULL;
-    AVCodec* codec = NULL;
-    AVAudioResampleContext* resample_context = NULL;
-    ao_device* outputDevice = NULL;
-    ao_sample_format outputFormat;
+    AVFormatContext* audio_context_ = NULL;
+    AVCodecContext* codec_context_ = NULL;
+    AVCodec* codec_ = NULL;
+    AVAudioResampleContext* resample_context_ = NULL;
+    ao_device* outputDevice_ = NULL;
+    ao_sample_format outputFormat_;
 
-    std::atomic<bool> readingFile;
-    std::thread fileRead;
+    std::atomic<bool> readingFile_;
+    std::thread fileRead_;
 };
-
-#endif // AUDIOPLAYER_H
