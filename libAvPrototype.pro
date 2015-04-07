@@ -17,9 +17,7 @@ macx:QMAKE_LFLAGS += -stdlib=libc++
 TARGET = lv2_proto
 TEMPLATE = app
 
-INCLUDEPATH += /opt/local/include/lilv-0/ \
-        /opt/local/include/suil-0/ \
-        /opt/local/include/ \
+INCLUDEPATH += /opt/local/include/ \
         /usr/local/include/ \
         /usr/include/
 
@@ -29,29 +27,20 @@ DEPENDPATH += /opt/local/lib/ \
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    uridmap.cpp \
-    audioplayer.cpp \
-    lvplugin.cpp \
-    plugin.cpp
+    audioplayer.cpp
 
 HEADERS  += mainwindow.h \
     audioplayer.h \
-    lv2_classes.hpp \
-    plugin.h \
-    lvplugin.h \
-    globals.h \
-    ringbuffer.h
+    globals.h
 
 FORMS    += mainwindow.ui
 
 win32:CONFIG(release, debug|release) {
-        LIBS += -L$$PWD/libs/lilv-0.20.0/build/release/ -llilv-0
+# TODO: Build on windows #
 } else:win32:CONFIG(debug, debug|release) {
-        LIBS += -L$$PWD/libs/lilv-0.20.0/build/debug/ -llilv-0
+# TODO: Build on windows #
 } else:unix {
-        LIBS += -L/opt/local/lib/ -llilv-0 \
-                -L/opt/local/lib/ -lsuil-0 \
-                /usr/local/lib/libavformat.a \
+        LIBS += /usr/local/lib/libavformat.a \
                 /usr/local/lib/libavutil.a \
                 /usr/local/lib/libavcodec.a \
                 /usr/local/lib/libavresample.a \

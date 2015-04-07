@@ -22,8 +22,6 @@
 #include <string>
 #include <vector>
 
-#include <lilv/lilv.h>
-
 #include "audioplayer.h"
 #include "globals.h"
 
@@ -43,16 +41,12 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_plugins_activated(int index);
     void on_actionOpen_triggered();
     void on_play_clicked();
     void on_stop_clicked();
 
 private:
     Ui::MainWindow *ui;
-    LilvWorld* world;
-    const LilvPlugins* plugins;
-    std::unique_ptr<LVPlugin> currentPlugin;
     AudioPlayer mainOut;
 };
 
