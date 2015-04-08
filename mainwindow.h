@@ -11,9 +11,6 @@
  *     warranty * of merchantability or fitness for a particular
  *     purpose.
  *
- * Function:
- *
- *
  */
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
@@ -25,12 +22,9 @@
 #include "audioplayer.h"
 #include "globals.h"
 
-
 namespace Ui {
 class MainWindow;
 }
-
-class LVPlugin;
 
 class MainWindow : public QMainWindow
 {

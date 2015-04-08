@@ -11,9 +11,6 @@
  *     warranty * of merchantability or fitness for a particular
  *     purpose.
  *
- * Function:
- *
- *
  */
 #pragma once
 

@@ -31,6 +31,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+/* Open file dialogue. */
 void MainWindow::on_actionOpen_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
@@ -46,11 +47,13 @@ void MainWindow::on_actionOpen_triggered()
     }
 }
 
+/* Start audio playback. */
 void MainWindow::on_play_clicked()
 {
     mainOut.start();
 }
 
+/* Stop audio playback. */
 void MainWindow::on_stop_clicked()
 {
     mainOut.stop();
